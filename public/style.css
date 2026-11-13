@@ -1,0 +1,194 @@
+/* Werewolf. One visual world: a village at night, lit by a lantern by day.
+   Layout: header, video grid that fills the screen, action panel pinned below. */
+:root {
+  --ink: #0b1020;        /* night sky */
+  --slate: #161d33;      /* panels and tiles */
+  --edge: #2a3355;       /* borders */
+  --moon: #ece8d9;       /* text */
+  --mist: #98a1bd;       /* secondary text */
+  --lantern: #e3a94a;    /* primary actions, daylight */
+  --blood: #c9423c;      /* wolves, death, danger */
+  --moss: #6fae7d;       /* safe, saved */
+  --display: "IM Fell English", "Iowan Old Style", Georgia, serif;
+  --body: "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", sans-serif;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; }
+body {
+  background: var(--ink);
+  color: var(--moon);
+  font: 16px/1.45 var(--body);
+  transition: background .8s;
+}
+body[data-phase="day"], body[data-phase="vote"], body[data-phase="verdict"], body[data-phase="dawn"] {
+  background: linear-gradient(#1c2340, #0f1428 60%);
+}
+body[data-phase="night"] { background: #05070f; }
+h1, h2, .phase, .role-name { font-family: var(--display); font-weight: 400; text-wrap: balance; }
+h2 { font-size: 1.35rem; margin: 0 0 .35rem; }
+p { margin: 0 0 .6rem; }
+.muted { color: var(--mist); }
+.small { font-size: .875rem; }
+[hidden] { display: none !important; }
+
+button, input, select { font: inherit; color: inherit; }
+button {
+  background: var(--slate); border: 1px solid var(--edge); border-radius: 10px;
+  padding: .65rem .9rem; cursor: pointer; min-height: 44px;
+}
+button:hover:not(:disabled) { border-color: var(--mist); }
+button:disabled { opacity: .45; cursor: default; }
+button.primary { background: var(--lantern); border-color: var(--lantern); color: #1b1404; font-weight: 700; }
+button.danger { background: var(--blood); border-color: var(--blood); color: #fff; font-weight: 700; }
+:focus-visible { outline: 2px solid var(--lantern); outline-offset: 2px; }
+input, select {
+  background: #0d1326; border: 1px solid var(--edge); border-radius: 10px;
+  padding: .65rem .8rem; min-height: 44px; width: 100%;
+}
+label { display: block; font-size: .875rem; color: var(--mist); margin: .8rem 0 .3rem; }
+
+/* ---------- home ---------- */
+#home { max-width: 34rem; margin: 0 auto; padding-bottom: 3rem; }
+.scene { position: relative; }
+.scene svg { display: block; width: 100%; height: clamp(230px, 42vh, 340px); }
+.scene::after { content: ""; position: absolute; inset: auto 0 0 0; height: 16%; background: linear-gradient(transparent, var(--ink)); pointer-events: none; }
+.scene h1 {
+  position: absolute; left: 1.25rem; top: 1rem; margin: 0; z-index: 1;
+  font-size: clamp(2.8rem, 13vw, 4rem); line-height: 1; letter-spacing: .01em;
+  text-shadow: 0 2px 18px rgba(5, 7, 15, .9);
+}
+.home-body { padding: .25rem 1.25rem 0; }
+.lede { color: var(--mist); }
+#homeForm { display: flex; flex-direction: column; margin-bottom: .8rem; }
+#homeForm .primary { margin-top: 1rem; }
+h2.section { margin: 2rem 0 .6rem; font-size: 1.5rem; }
+.steps { margin: 0; padding: 0; list-style: none; counter-reset: step; display: grid; gap: .55rem; }
+.steps li { counter-increment: step; display: grid; grid-template-columns: 2rem 1fr; gap: .2rem .6rem; color: var(--mist); }
+.steps li::before {
+  content: counter(step); grid-row: span 2; width: 2rem; height: 2rem; border-radius: 50%;
+  display: grid; place-items: center; border: 1px solid var(--edge); color: var(--lantern);
+  font-family: var(--display); font-size: 1.1rem;
+}
+.steps strong { color: var(--moon); }
+.roles { list-style: none; margin: 0; padding: 0; display: grid; gap: .5rem; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); }
+.roles li { display: flex; gap: .75rem; align-items: center; background: var(--slate); border: 1px solid var(--edge); border-radius: 12px; padding: .7rem .8rem; }
+.roles svg { flex: none; width: 34px; height: 34px; fill: var(--lantern); }
+.roles svg .cut { fill: var(--slate); }
+.roles .wolf { border-color: var(--blood); }
+.roles .wolf svg { fill: var(--blood); }
+.roles strong { display: block; font-family: var(--display); font-weight: 400; font-size: 1.2rem; line-height: 1.2; }
+.roles span { color: var(--mist); font-size: .9rem; }
+.row { display: flex; gap: .6rem; }
+.row input { text-transform: uppercase; letter-spacing: .3em; font-weight: 700; }
+.row button { flex: none; padding-inline: 1.4rem; }
+.or { display: flex; align-items: center; gap: .8rem; color: var(--mist); font-size: .875rem; margin: 1.4rem 0 0; }
+.or::before, .or::after { content: ""; flex: 1; border-top: 1px solid var(--edge); }
+.moon {
+  width: 72px; height: 72px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #fffbe9, #d9d2b4 60%, #b7ae8c);
+  box-shadow: 0 0 60px 8px rgba(236, 232, 217, .18);
+}
+
+/* ---------- game shell ---------- */
+#game { height: 100%; display: flex; flex-direction: column; }
+header {
+  display: flex; align-items: center; justify-content: space-between; gap: .5rem;
+  padding: .55rem .8rem; border-bottom: 1px solid var(--edge);
+}
+.phase { font-size: 1.4rem; display: flex; align-items: baseline; gap: .6rem; min-width: 0; }
+#phaseName { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.timer { font-family: var(--body); font-size: 1rem; color: var(--lantern); font-variant-numeric: tabular-nums; }
+.tools { display: flex; gap: .35rem; flex: none; }
+.chip { min-height: 36px; padding: .3rem .65rem; border-radius: 999px; font-size: .875rem; }
+.chip.code { letter-spacing: .18em; font-weight: 700; color: var(--lantern); }
+.chip.icon[aria-pressed="false"] { background: var(--blood); border-color: var(--blood); text-decoration: line-through; }
+.story { padding: .4rem .9rem; color: var(--mist); font-style: italic; font-family: var(--display); font-size: 1.05rem; min-height: 2.2rem; }
+.banner { margin: 0 .8rem .4rem; background: var(--lantern); color: #1b1404; border: 0; font-weight: 700; }
+
+#stage { flex: 1; min-height: 0; position: relative; }
+.grid {
+  height: 100%; overflow-y: auto; padding: .5rem .8rem;
+  display: grid; gap: .45rem; align-content: start;
+  grid-template-columns: repeat(var(--cols, 3), 1fr);
+}
+.grid[data-size="s"] { --cols: 2; }
+.grid[data-size="m"] { --cols: 3; }
+.grid[data-size="l"] { --cols: 4; }
+@media (min-width: 720px) {
+  .grid[data-size="s"] { --cols: 4; }
+  .grid[data-size="m"] { --cols: 5; }
+  .grid[data-size="l"] { --cols: 6; }
+}
+.tile {
+  position: relative; aspect-ratio: 4 / 3; border-radius: 10px; overflow: hidden;
+  background: var(--slate); border: 2px solid transparent;
+}
+.tile .media { position: absolute; inset: 0; display: grid; place-items: center; }
+.tile video { width: 100%; height: 100%; object-fit: cover; }
+.tile.me video { transform: scaleX(-1); }
+.tile .initial { font-family: var(--display); font-size: 1.7rem; color: var(--mist); transform: translateY(-.55rem); }
+.tile .label {
+  position: absolute; left: 0; right: 0; bottom: 0; padding: .9rem .4rem .2rem;
+  font-size: .8rem; font-weight: 700; line-height: 1.2;
+  background: linear-gradient(transparent, rgba(5, 7, 15, .85));
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.tile .tag {
+  position: absolute; top: .3rem; left: .3rem; font-size: .68rem; font-weight: 700;
+  padding: .1rem .4rem; border-radius: 999px; background: rgba(5, 7, 15, .75);
+  text-transform: uppercase; letter-spacing: .06em;
+}
+.tile .tag:empty { display: none; }
+.tile.speaking { border-color: var(--lantern); }
+.tile.pack { border-color: var(--blood); }
+.tile.pack .tag { background: var(--blood); color: #fff; }
+.tile.dead video, .tile.dead .initial { filter: grayscale(1) brightness(.45); }
+.tile.dead .tag { background: #000; color: var(--mist); }
+.tile.away { opacity: .5; }
+.tile.voted::after {
+  content: "voted"; position: absolute; top: .3rem; right: .3rem; font-size: .68rem; font-weight: 700;
+  padding: .1rem .4rem; border-radius: 999px; background: var(--lantern); color: #1b1404;
+}
+.tile.gone { display: none; }
+
+/* The blackout: sleepers see nothing but the moon. */
+.sleep {
+  position: absolute; inset: 0; background: #020308;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1rem;
+  font-family: var(--display); font-size: 1.3rem; color: var(--mist); text-align: center; padding: 1rem;
+}
+
+/* ---------- action panel ---------- */
+.panel {
+  flex: none; max-height: 48%; overflow-y: auto;
+  border-top: 1px solid var(--edge); background: var(--slate);
+  padding: .9rem .9rem calc(.9rem + env(safe-area-inset-bottom, 0px));
+}
+.picks { display: grid; grid-template-columns: repeat(auto-fill, minmax(8.5rem, 1fr)); gap: .45rem; margin: .5rem 0; }
+.picks button { text-align: left; display: flex; justify-content: space-between; align-items: center; gap: .4rem; overflow-wrap: anywhere; }
+.picks button.on { border-color: var(--lantern); box-shadow: inset 0 0 0 1px var(--lantern); }
+.picks button .who { font-size: .72rem; color: var(--blood); font-weight: 700; }
+.actions { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .6rem; }
+.settings { border-top: 1px solid var(--edge); padding-top: .3rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr)); gap: .2rem .9rem; margin: .9rem 0 0; }
+.check { display: flex; align-items: center; gap: .5rem; color: var(--moon); font-size: 1rem; margin: .5rem 0 0; min-height: 36px; }
+.check input { width: 1.2rem; height: 1.2rem; min-height: 0; accent-color: var(--lantern); }
+.role-name { font-size: 2rem; margin: 0; }
+.role-name.werewolf { color: var(--blood); }
+.good { color: var(--moss); font-weight: 700; }
+.bad { color: var(--blood); font-weight: 700; }
+ul.plain { list-style: none; margin: .4rem 0; padding: 0; display: grid; gap: .25rem; }
+ul.plain li { display: flex; justify-content: space-between; gap: 1rem; border-bottom: 1px solid var(--edge); padding: .25rem 0; }
+
+dialog {
+  background: var(--slate); color: var(--moon); border: 1px solid var(--edge); border-radius: 14px;
+  width: min(26rem, calc(100% - 2rem)); padding: 1.2rem; max-height: 85%;
+}
+dialog::backdrop { background: rgba(2, 3, 8, .8); }
+dialog button { width: 100%; margin-top: .8rem; }
+.toast {
+  position: fixed; left: 50%; bottom: 1.2rem; transform: translateX(-50%);
+  background: var(--moon); color: var(--ink); padding: .6rem 1rem; border-radius: 10px;
+  font-weight: 700; max-width: calc(100% - 2rem); z-index: 10; text-align: center;
+}
+@media (prefers-reduced-motion: reduce) { body { transition: none; } }
