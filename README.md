@@ -71,6 +71,16 @@ build the included `Dockerfile`, set the three `LIVEKIT_*` variables, expose por
 **Quick test with friends from your own machine:** run `npm start`, then
 `npx localtunnel --port 3000` or `ngrok http 3000` and share the HTTPS address.
 
+## Keeping it private
+
+Set `HOST_PASSCODE` to a secret word. Then only someone who knows the word can
+start a village; players joining with a village code do not need it. Without it,
+anyone who finds the address can start their own game on your video allowance.
+
+Other protections: a village stops accepting players once the game starts, and a
+visitor who enters 8 wrong codes or passcodes is locked out for ten minutes.
+Nothing is recorded or stored, and a game is forgotten when it ends.
+
 ## How the night blackout is enforced
 
 Each player's browser tells the LiveKit server who may receive their camera and

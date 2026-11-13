@@ -77,11 +77,22 @@ function leaveLocal() {
 // ---------- home screen ----------
 $('nameInput').value = load('ww-name') || '';
 $('codeInput').value = (location.hash || '').replace('#', '').slice(0, 4).toUpperCase();
+let passcodeRequired = false;
+$('passInput').value = load('ww-pass') || '';
+fetch('/api/config').then((r) => r.json()).then((c) => {
+  passcodeRequired = Boolean(c.passcodeRequired);
+  $('passWrap').hidden = !passcodeRequired;
+}).catch(() => {});
 function enter(type) {
   const name = $('nameInput').value.trim();
   if (!name) { $('nameInput').focus(); return toast('Enter your name first.'); }
   save('ww-name', name);
   const msg = { type, name };
+  if (type === 'create' && passcodeRequired) {
+    msg.passcode = $('passInput').value.trim();
+    if (!msg.passcode) { $('passInput').focus(); return toast('Enter the host passcode to start a village.'); }
+    save('ww-pass', msg.passcode);
+  }
   if (type === 'join') {
     msg.code = $('codeInput').value.trim().toUpperCase();
     if (msg.code.length !== 4) { $('codeInput').focus(); return toast('Enter the 4-letter village code.'); }

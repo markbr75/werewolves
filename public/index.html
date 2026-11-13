@@ -74,6 +74,10 @@
     <form id="homeForm" autocomplete="off">
       <label for="nameInput">Your name</label>
       <input id="nameInput" maxlength="16" placeholder="e.g. Mark" required>
+      <div id="passWrap" hidden>
+        <label for="passInput">Host passcode <span class="muted">(only to start a village)</span></label>
+        <input id="passInput" type="password" maxlength="40" autocomplete="off">
+      </div>
       <button type="button" id="createBtn" class="primary">Start a new village</button>
       <div class="or"><span>or join one</span></div>
       <label for="codeInput">Village code</label>
@@ -83,6 +87,7 @@
       </div>
     </form>
     <p class="muted small">4 to 18 players. Everyone joins from their own phone or laptop.</p>
+    <p class="muted small">This is a private, invite-only game. Video and sound are live only: nothing is recorded or stored.</p>
 
     <h2 class="section">How a game goes</h2>
     <ol class="steps">
