@@ -14,59 +14,8 @@
 
 <main id="home">
   <div class="scene">
-    <svg viewBox="0 0 400 250" preserveAspectRatio="xMidYMax slice" role="img" aria-label="A village at night. A wolf howls on the hill in front of the full moon while villagers gather with lanterns.">
-      <defs>
-        <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#070b1a"/><stop offset=".7" stop-color="#1a2348"/><stop offset="1" stop-color="#2b2f55"/></linearGradient>
-        <radialGradient id="halo"><stop offset="0" stop-color="#ece8d9" stop-opacity=".35"/><stop offset="1" stop-color="#ece8d9" stop-opacity="0"/></radialGradient>
-        <radialGradient id="moonFill" cx=".38" cy=".35"><stop offset="0" stop-color="#fffbe9"/><stop offset=".7" stop-color="#ded7b8"/><stop offset="1" stop-color="#bdb38f"/></radialGradient>
-        <radialGradient id="glow"><stop offset="0" stop-color="#e3a94a" stop-opacity=".75"/><stop offset="1" stop-color="#e3a94a" stop-opacity="0"/></radialGradient>
-      </defs>
-      <rect width="400" height="250" fill="url(#sky)"/>
-      <g fill="#ece8d9">
-        <circle cx="28" cy="30" r="1.1"/><circle cx="70" cy="62" r=".8"/><circle cx="112" cy="22" r="1.2"/><circle cx="150" cy="70" r=".7"/>
-        <circle cx="186" cy="34" r="1"/><circle cx="222" cy="90" r=".8"/><circle cx="52" cy="104" r=".7"/><circle cx="372" cy="28" r="1"/>
-        <circle cx="384" cy="96" r=".8"/><circle cx="246" cy="18" r=".8"/><circle cx="130" cy="110" r=".6"/><circle cx="20" cy="140" r=".8"/>
-      </g>
-      <circle cx="300" cy="78" r="92" fill="url(#halo)"/>
-      <circle cx="300" cy="78" r="50" fill="url(#moonFill)"/>
-      <circle cx="318" cy="62" r="7" fill="#c9c1a0" opacity=".5"/><circle cx="286" cy="96" r="10" fill="#c9c1a0" opacity=".4"/><circle cx="322" cy="98" r="4" fill="#c9c1a0" opacity=".45"/>
-      <!-- far hills and pines -->
-      <path d="M0 176 Q60 140 130 168 T260 160 T400 150 V250 H0Z" fill="#141a36"/>
-      <g fill="#0f1430">
-        <path d="M18 172 l9-30 9 30z"/><path d="M40 176 l7-24 7 24z"/><path d="M196 166 l8-28 8 28z"/><path d="M214 168 l6-20 6 20z"/><path d="M372 156 l8-28 8 28z"/>
-      </g>
-      <!-- the wolf's hill, with the wolf in front of the moon -->
-      <path d="M226 250 Q250 150 300 120 Q352 138 400 176 V250Z" fill="#070a16"/>
-      <g transform="translate(266 56)" fill="#070a16">
-        <path d="M54 68 Q68 66 64 52 Q60 60 55 56 Q54 42 45 31 Q41 25 40 19 L40 9 L36 15 L33 7 L30 14 L15 0 L20 8 L14 8 L23 16 Q27 21 26 29 Q23 40 24 52 L22 68 L30 68 L31 56 Q35 60 36 68Z"/>
-        <circle cx="29" cy="12.5" r="1.1" fill="#c9423c"/>
-      </g>
-      <!-- the village -->
-      <g fill="#0b0f22">
-        <path d="M0 250 V196 Q90 178 250 204 L300 250Z"/>
-        <path d="M22 200 v-26 l18-16 18 16 v26z"/><path d="M64 204 v-22 l15-13 15 13 v22z"/>
-        <path d="M104 204 v-46 l9-22 9 22 v46z"/><rect x="112" y="124" width="2" height="12"/><rect x="108" y="128" width="10" height="2"/>
-        <path d="M132 208 v-24 l19-15 19 15 v24z"/><path d="M178 212 v-18 l13-11 13 11 v18z"/>
-        <rect x="46" y="150" width="5" height="12"/><rect x="156" y="162" width="5" height="10"/>
-      </g>
-      <g fill="#e3a94a">
-        <rect x="31" y="180" width="6" height="8"/><rect x="45" y="180" width="6" height="8"/><rect x="74" y="188" width="6" height="7"/>
-        <rect x="110" y="170" width="6" height="10" rx="3"/><rect x="141" y="190" width="6" height="8"/><rect x="155" y="190" width="6" height="8"/><rect x="188" y="198" width="5" height="6"/>
-      </g>
-      <!-- villagers with lanterns -->
-      <g>
-        <circle cx="62" cy="226" r="16" fill="url(#glow)"/><circle cx="110" cy="232" r="16" fill="url(#glow)"/><circle cx="160" cy="230" r="16" fill="url(#glow)"/><circle cx="212" cy="236" r="14" fill="url(#glow)"/>
-        <g fill="#2a3263" stroke="#5a66a8" stroke-width=".9">
-          <path d="M44 250 l4-26 q4-5 8 0 l4 26z"/><circle cx="52" cy="216" r="5"/>
-          <path d="M90 250 l5-30 q5-6 10 0 l5 30z"/><circle cx="100" cy="211" r="5.5"/>
-          <path d="M140 250 l4-24 q4-5 8 0 l4 24z"/><circle cx="148" cy="218" r="4.6"/>
-          <path d="M192 250 l4-22 q4-5 8 0 l4 22z"/><circle cx="200" cy="220" r="4.4"/>
-        </g>
-        <g fill="#ffd98a"><rect x="60" y="222" width="4" height="6" rx="1"/><rect x="108" y="228" width="4" height="6" rx="1"/><rect x="158" y="226" width="4" height="6" rx="1"/><rect x="210" y="232" width="4" height="6" rx="1"/></g>
-        <g stroke="#39427a" stroke-width=".9" fill="none"><path d="M56 224 l6-3"/><path d="M104 222 l6 5"/><path d="M152 224 l8 1"/><path d="M204 228 l8 3"/></g>
-      </g>
-    </svg>
-    <h1>Werewolf</h1>
+    <img src="werewolf-key-art.webp" width="1600" height="900" alt="Werewolf. A wolf howls on a hill in front of the full moon, above a village where villagers gather with lanterns.">
+    <h1 class="sr-only">Werewolf</h1>
   </div>
 
   <div class="home-body">
