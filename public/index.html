@@ -19,7 +19,7 @@
   </div>
 
   <div class="home-body">
-    <p class="lede">A village, a few secret werewolves, and one question: who is lying? Cameras on. When night falls every screen goes dark, and only the wolves can see and hear each other.</p>
+    <p class="lede">A village, a few secret werewolves, and one question: who is lying? Play online with cameras on, or in person around a table. A narrator runs the night for you, so nobody has to sit out.</p>
     <form id="homeForm" autocomplete="off">
       <label for="nameInput">Your name</label>
       <input id="nameInput" maxlength="16" placeholder="e.g. Mark" required>
@@ -27,6 +27,11 @@
         <label for="passInput">Host passcode <span class="muted">(only to start a village)</span></label>
         <input id="passInput" type="password" maxlength="40" autocomplete="off">
       </div>
+      <fieldset class="mode-pick">
+        <legend>If you are starting a village, how are you playing?</legend>
+        <label class="check" for="modeOnline"><input type="radio" name="mode" id="modeOnline" value="online" checked> Online, cameras on</label>
+        <label class="check" for="modeInPerson"><input type="radio" name="mode" id="modeInPerson" value="inperson"> In person, same room, no cameras</label>
+      </fieldset>
       <button type="button" id="createBtn" class="primary">Start a new village</button>
       <div class="or"><span>or join one</span></div>
       <label for="codeInput">Village code</label>
@@ -35,15 +40,15 @@
         <button type="submit" id="joinBtn">Join</button>
       </div>
     </form>
-    <p class="muted small">4 to 18 players. Everyone joins from their own phone or laptop.</p>
+    <p class="muted small">4 to 18 players. Everyone joins from their own phone or laptop, including in person.</p>
     <p class="muted small">This is a private, invite-only game. Video and sound are live only: nothing is recorded or stored.</p>
 
     <h2 class="section">How a game goes</h2>
     <ol class="steps">
-      <li><strong>Gather.</strong> Everyone joins with their camera on and is dealt a secret role.</li>
-      <li><strong>Night.</strong> The village sleeps and screens go black. The werewolves wake, see only each other, and choose a victim.</li>
+      <li><strong>Gather.</strong> Everyone joins and is dealt a secret role, the host included.</li>
+      <li><strong>Night.</strong> The narrator calls night and screens go black. The werewolves choose a victim. Online they see and hear only each other; in person they agree silently on their phones.</li>
       <li><strong>Dawn.</strong> The village learns who did not survive.</li>
-      <li><strong>Day.</strong> Cameras back on. Argue, accuse, defend yourself, then vote to banish one player.</li>
+      <li><strong>Day.</strong> Argue, accuse, defend yourself, on camera or across the table, then vote on your phones to banish one player. The narrator calls out the time left.</li>
       <li><strong>Repeat</strong> until every wolf is banished, or the wolves match the villagers in number.</li>
     </ol>
 
@@ -67,6 +72,7 @@
     </div>
     <div class="tools">
       <button id="roleBtn" class="chip" hidden>My role</button>
+      <button id="voiceBtn" class="chip icon" aria-pressed="true" title="Narrator voice and sounds">Voice</button>
       <button id="micBtn" class="chip icon" aria-pressed="true" title="Microphone" hidden>Mic</button>
       <button id="camBtn" class="chip icon" aria-pressed="true" title="Camera" hidden>Cam</button>
       <button id="codeBtn" class="chip code" title="Copy invite link"></button>

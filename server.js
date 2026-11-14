@@ -78,6 +78,7 @@ app.get('/api/token', async (req, res) => {
   const game = games.get(String(req.query.code || '').toUpperCase());
   const player = game && game.players.get(String(req.query.id || ''));
   if (!player || player.secret !== req.query.secret) return res.status(403).json({ error: 'Not in this game.' });
+  if (game.settings.mode === 'inperson') return res.status(409).json({ error: 'This village is playing in person, without video.' });
   const token = new AccessToken(LIVEKIT_API_KEY, LIVEKIT_API_SECRET, {
     identity: player.id, name: player.name, ttl: '6h',
   });
@@ -115,7 +116,7 @@ wss.on('connection', (ws, req) => {
             wrong(who);
             throw new Error('That host passcode is not right. Only the host needs it; to join a game, use the village code.');
           }
-          g = new Game(newCode(), { speed: SPEED, onChange: broadcast });
+          g = new Game(newCode(), { speed: SPEED, onChange: broadcast, mode: msg.mode });
           games.set(g.code, g);
         } else {
           g = games.get(String(msg.code || '').trim().toUpperCase());

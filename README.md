@@ -1,8 +1,25 @@
 # Werewolf, with live video
 
 A browser game of Werewolf for 4 to 18 players. Everyone joins from their own
-phone or laptop with their camera on. When night falls, every screen goes dark
-and only the werewolves can see and hear each other.
+phone or laptop. Play online with cameras on, or in person around a table. A
+built-in narrator runs the game, so the host gets a role and plays too.
+
+## Online or in person
+
+The host picks the mode when starting a village and can change it in the lobby.
+
+| | Online | In person |
+| --- | --- | --- |
+| Video | Cameras on. At night only the werewolves see and hear each other. | None. No camera or microphone is asked for. |
+| Narrator | Speaks on every player's device. | Speaks only on the host's phone, for the whole room. Turn it up or pair a speaker. |
+| Role card | Shown on your screen. | Face down: press and hold to peek. |
+| Night | Sleepers see a black screen. | Every phone shows the same dark screen, the pack is never marked, and players with no night job tap a name too, so nobody stands out. |
+
+The narrator announces each phase, plays a wolf howl and night sounds, and calls
+out the time left (one minute, thirty seconds, ten seconds). It uses the
+browser's built-in speech, so the voice differs between devices. The Voice
+button turns it off on a device. Screens are kept awake during a game where the
+browser allows it.
 
 ## Roles
 

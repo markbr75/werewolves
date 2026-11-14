@@ -26,7 +26,15 @@ const DEFAULT_SETTINGS = {
   witch: true,
   discussSecs: 180,
   revealRoles: true,  // show a player's role when they die
+  mode: 'online',     // 'online' = cameras on, 'inperson' = same room, no video
 };
+const MODES = ['online', 'inperson'];
+
+function spokenTime(secs) {
+  if (secs < 60) return `${secs} seconds`;
+  const m = Math.floor(secs / 60), s = secs % 60;
+  return `${m} minute${m === 1 ? '' : 's'}${s ? ` ${s} seconds` : ''}`;
+}
 
 function autoWolves(n) {
   if (n <= 6) return 1;
@@ -66,6 +74,8 @@ class Game {
     this.step = null;
     this.round = 0;
     this.settings = { ...DEFAULT_SETTINGS };
+    if (MODES.includes(opts.mode)) this.settings.mode = opts.mode;
+    this.narration = { seq: 0, text: '' };   // the narrator's latest line, the same for every player
     this.speed = opts.speed || 1;          // <1 shortens every timer (used by tests)
     this.onChange = opts.onChange || (() => {});
     this.timer = null;
@@ -94,6 +104,9 @@ class Game {
   // ---------- helpers ----------
   changed() { this.touched = Date.now(); this.onChange(this); }
   say(text) { this.log.push({ t: Date.now(), text }); if (this.log.length > 60) this.log.shift(); }
+  // The narrator speaks `text` aloud on the players' devices; `logText` (or the same words) goes in the story log.
+  narrate(text, logText) { this.say(logText || text); this.narration = { seq: this.narration.seq + 1, text }; }
+  inPerson() { return this.settings.mode === 'inperson'; }
   name(id) { const p = this.players.get(id); return p ? p.name : 'Someone'; }
   list() { return [...this.players.values()]; }
   alive() { return this.list().filter(p => p.alive); }
@@ -172,6 +185,7 @@ class Game {
           if (typeof s[k] === 'boolean') this.settings[k] = s[k];
         }
         if (Number.isInteger(s.wolves) && s.wolves >= 0 && s.wolves <= 6) this.settings.wolves = s.wolves;
+        if (MODES.includes(s.mode)) this.settings.mode = s.mode;
         if (Number.isInteger(s.discussSecs)) this.settings.discussSecs = Math.min(600, Math.max(30, s.discussSecs));
         return this.changed();
       }
@@ -215,7 +229,9 @@ class Game {
     });
     this.round = 0;
     this.log = [];
-    this.say('The game begins. Check your role.');
+    this.narrate(this.inPerson()
+      ? 'The cards are dealt. Keep your phone to yourself, peek at your role, then tap ready.'
+      : 'The cards are dealt. Check your role in secret, then tap ready.', 'The game begins. Check your role.');
     this.phase = 'reveal';
     this.step = null;
     this.after(TIMES.reveal, () => this.startNight());
@@ -241,7 +257,15 @@ class Game {
     };
     this.lastDeaths = [];
     this.verdict = null;
-    this.say(`Night ${this.round} falls on the village.`);
+    // Every role in the game is called every night, alive or not, so the call gives nothing away.
+    const r = this.rolesInGame;
+    this.narrate(`Night ${this.round} falls on the village. `
+      + (this.inPerson() ? 'Eyes on your own phone, and not a word. ' : 'Every screen goes dark. ')
+      + 'Werewolves, choose your victim.'
+      + (r.seer ? ' Seer, choose someone to read.' : '')
+      + (r.doctor ? ' Doctor, choose someone to protect.' : '')
+      + (this.inPerson() ? ' Everyone else, tap a name too, so nobody can tell who is who.' : ''),
+    `Night ${this.round} falls on the village.`);
     this.after(TIMES.nightMax, () => this.endActs());
     this.changed();
   }
@@ -316,6 +340,7 @@ class Game {
     // If the witch is dead or out of potions, the pause still happens so nobody can tell.
     const secs = canAct ? TIMES.witchMax : TIMES.witchMin + Math.random() * 8;
     this.after(secs, () => this.resolveNight());
+    this.narrate('Witch, the night is yours.');
     this.changed();
   }
 
@@ -348,8 +373,10 @@ class Game {
     this.lastDeaths = deaths;
     this.phase = 'dawn';
     this.step = null;
-    if (deaths.length) this.say(`Dawn. ${deaths.map(id => this.describeDead(id)).join(' and ')} did not survive the night.`);
-    else this.say('Dawn. Nobody died in the night.');
+    if (deaths.length) {
+      this.narrate(`Dawn breaks. Everyone, wake up. ${deaths.map(id => this.speakDead(id)).join(' and ')} did not survive the night.`,
+        `Dawn. ${deaths.map(id => this.describeDead(id)).join(' and ')} did not survive the night.`);
+    } else this.narrate('Dawn breaks. Everyone, wake up. Nobody died in the night.', 'Dawn. Nobody died in the night.');
     this.after(TIMES.dawn, () => this.proceed('day'));
     this.changed();
   }
@@ -357,6 +384,11 @@ class Game {
   describeDead(id) {
     const p = this.players.get(id);
     return this.settings.revealRoles ? `${p.name} (${p.role})` : p.name;
+  }
+
+  speakDead(id) {
+    const p = this.players.get(id);
+    return this.settings.revealRoles ? `${p.name}, the ${p.role},` : p.name;
   }
 
   kill(id) {
@@ -375,7 +407,7 @@ class Game {
       this.hunterShot = undefined;
       this.phase = 'hunter';
       this.step = 'aim';
-      this.say(`${this.name(this.hunterId)} was the hunter and gets one last shot.`);
+      this.narrate(`${this.name(this.hunterId)} was the hunter and gets one last shot.`);
       this.after(TIMES.hunter, () => this.finishHunter(null));
       return this.changed();
     }
@@ -398,9 +430,9 @@ class Game {
     this.hunterShot = targetId;
     if (targetId) {
       this.kill(targetId);
-      this.say(`${this.name(this.hunterId)} shot ${this.describeDead(targetId)}.`);
+      this.narrate(`${this.name(this.hunterId)} shot ${this.speakDead(targetId).replace(/,$/, '')}.`, `${this.name(this.hunterId)} shot ${this.describeDead(targetId)}.`);
     } else {
-      this.say(`${this.name(this.hunterId)} lowered the gun without firing.`);
+      this.narrate(`${this.name(this.hunterId)} lowered the gun without firing.`);
     }
     this.step = 'result';
     this.after(TIMES.hunterResult, () => this.proceed(this.afterHunter));
@@ -420,7 +452,7 @@ class Game {
     this.phase = 'over';
     this.step = null;
     this.winner = winner;
-    this.say(winner === 'village' ? 'The last werewolf is gone. The village wins.' : 'The werewolves have overrun the village.');
+    this.narrate(winner === 'village' ? 'The last werewolf is gone. The village wins.' : 'The werewolves have overrun the village. The werewolves win.');
     this.changed();
   }
 
@@ -442,7 +474,7 @@ class Game {
   startDay() {
     this.phase = 'day';
     this.step = null;
-    this.say('The village wakes and talks it over.');
+    this.narrate(`The village talks it over. You have ${spokenTime(this.settings.discussSecs)}.`, 'The village wakes and talks it over.');
     this.after(this.settings.discussSecs, () => this.startVote());
     this.changed();
   }
@@ -452,7 +484,7 @@ class Game {
     this.clearTimers();
     this.phase = 'vote';
     this.votes = {};
-    this.say('Time to vote. Who is banished?');
+    this.narrate(this.inPerson() ? 'Time to vote. Pick up your phones and choose who is banished.' : 'Time to vote. Who is banished?', 'Time to vote. Who is banished?');
     this.after(TIMES.vote, () => this.endVote());
     this.changed();
   }
@@ -463,6 +495,7 @@ class Game {
       const t = this.players.get(target);
       if (!t || !t.alive) return;
     }
+    if (this.votes[me.id] === target) return;   // a repeat of the same vote changes nothing
     this.votes[me.id] = target;
     this.changed();
     this.maybeEndVote();
@@ -490,9 +523,9 @@ class Game {
     this.verdict = { votes: { ...this.votes }, out };
     if (out) {
       this.kill(out);
-      this.say(`The village banished ${this.describeDead(out)}.`);
+      this.narrate(`The village banished ${this.speakDead(out).replace(/,$/, '')}.`, `The village banished ${this.describeDead(out)}.`);
     } else {
-      this.say('The vote was split. Nobody was banished.');
+      this.narrate('The vote was split. Nobody is banished.', 'The vote was split. Nobody was banished.');
     }
     this.phase = 'verdict';
     this.after(TIMES.verdict, () => this.proceed('night'));
@@ -515,7 +548,7 @@ class Game {
     const v = {
       code: this.code, phase: this.phase, step: this.step, round: this.round,
       deadline: this.deadline, now: Date.now(), hostId: this.hostId,
-      settings: this.settings, players,
+      settings: this.settings, players, narration: this.narration,
       you: { id, role: me.role, alive: me.alive },
       log: this.log.slice(-25),
       setup: this.phase === 'lobby'

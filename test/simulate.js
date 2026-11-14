@@ -10,6 +10,8 @@ const WebSocket = require('ws');
 const PORT = 3999;
 const pick = (a) => a[Math.floor(Math.random() * a.length)];
 let leaks = 0;
+const narrations = new Map();
+const heard = new Set();
 
 function check(cond, text) { if (!cond) { leaks++; console.error('  LEAK/BUG:', text); } }
 
@@ -49,6 +51,14 @@ function play(b) {
     if (me.role !== 'seer') check(!('seerResults' in S), `${me.role} received seer results`);
     if (S.phase === 'vote') check(!('verdict' in S), 'individual votes visible before the verdict');
   }
+  // The narrator's line is public: it must be the same for everyone and name no living player's role.
+  if (S.narration && S.narration.seq) {
+    const said = narrations.get(b.code + ':' + S.narration.seq);
+    if (said === undefined) narrations.set(b.code + ':' + S.narration.seq, S.narration.text);
+    else check(said === S.narration.text, 'players heard different narration');
+    if (S.phase === 'night') check(!S.players.some((p) => S.narration.text.includes(p.name)), 'night narration named a player');
+    heard.add(S.phase);
+  }
 
   // ---- act like a player ----
   const key = `${S.phase}:${S.step}:${S.round}`;
@@ -73,7 +83,7 @@ function play(b) {
     sendTo(b, { type: 'hunter', target: Math.random() < 0.8 ? pick(living).id : null });
   }
   if (S.phase === 'day' && me.id === S.hostId && b.key !== key) sendTo(b, { type: 'startVote' });
-  if (S.phase === 'vote' && me.alive && !S.myVote) {
+  if (S.phase === 'vote' && me.alive && !S.myVote && b.key !== key) {
     sendTo(b, { type: 'vote', target: Math.random() < 0.1 ? 'skip' : pick(others).id });
   }
   if (S.phase === 'over') b.done(S);
@@ -111,6 +121,9 @@ async function game(n, settings) {
     const wins = { village: 0, werewolves: 0 };
     for (const n of [4, 5, 6, 7, 8, 10, 12, 15, 18, 18, 9, 11, 14, 16, 13, 17]) wins[await game(n)]++;
     await game(8, { revealRoles: false, witch: false, wolves: 3 });
+    // In-person villages: same rules, no video, narrator on.
+    for (const n of [4, 7, 12, 18]) wins[await game(n, { mode: 'inperson' })]++;
+    for (const ph of ['reveal', 'night', 'dawn', 'day', 'vote', 'verdict', 'over']) check(heard.has(ph), `no narration was heard during ${ph}`);
     // A 19th player must be turned away.
     const host = await bot('Host');
     for (let i = 1; i < 18; i++) await bot('P' + i, host.code);
